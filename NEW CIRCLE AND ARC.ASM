@@ -21,7 +21,7 @@ label_2320:
 
 new_circle_entry:
 ;; FP-CALC              x, y, r.
-	rst	28h   		;; FP-CALC              x, y, r.
+	    RST     28H   		;; FP-CALC              x, y, r.
         DEFB    $2A             ;;abs                   x, y, r.
         DEFB    $3D             ;;re-stack              x, y, r.
         DEFB    $38             ;;end-calc              x, y, r.
@@ -34,7 +34,7 @@ new_circle_entry:
 ;    The circle is no larger than a single pixel so delete the radius from the
 ;    calculator stack and plot a point at the centre.
 
-    	rst     28h             ;; FP-CALC              x, y, r.
+    	RST     28H             ;; FP-CALC              x, y, r.
         DEFB    $02             ;;delete                x, y.                  
         DEFB    $38             ;;end-calc              x, y.
 
@@ -43,20 +43,20 @@ new_circle_entry:
 ; ---
 ;; C-R-GRE-1
 label_233B:
-	CALL label_2314     ;; STK-TO-A  A = radius
-   	PUSH AF         ; 
-   	CALL label_2307 ;  STK-TO-BC  C=Xc, B=Yc
-    	POP AF          ; 
+		call label_2314     ;; STK-TO-A  A = radius
+   		push af          
+   		call label_2307 	;  STK-TO-BC  C=Xc, B=Yc
+    	pop af           
 
     	ld 	e,c
-	ld 	d,b  ; (d,e) contains the center coordinates (yc, xc)
+		ld 	d,b  ; (d,e) contains the center coordinates (yc, xc)
 	
-	ld      c,a     ; x = r
+		ld      c,a     ; x = r
     	ld      b,0     ; y = 0  	;; (b,c) stores the current arc point coordinates (y,x)
  
     	ld      hl,0    ; error = 0 (I need 16 bits)
 
-	JP C8LOOP   ;label_238D
+		jp C8LOOP   	;label_238D
 
 
 Plot_circ: 
@@ -64,8 +64,8 @@ Plot_circ:
  	exx   ; keep the registers
 	pop bc
 	call label_22E5 ;+ $4  ;PLOT
-    	exx          ; recovers registers.
-    	ret
+    exx          ; recovers registers.
+    ret
 
 label_2358: 
 Mask_tab: 
@@ -83,7 +83,6 @@ Mask_tab:
 	nop
 	nop
 		
-
 ;===============================================================
 ; DRAW_ARC - ZX Spectrum 48K - Fully compatible with ROM
 ; Input: FP calculator stack with [dx, dy, A] (angle in radians)
@@ -93,8 +92,7 @@ Mask_tab:
 ;===============================================================	
 label_2360:
 draw_arc:
-;****
-	rst	20h	     ; NEXT-CHAR advances the parsed character address.
+	rst	20h	     		 ; NEXT-CHAR advances the parsed character address.
 	call	label_1C82   ; routine EXPT-1NUM stacks radius in runtime.
 	call	label_1BEE   ; routine CHECK-END will return here in runtime
                              ; if nothing follows the command.
@@ -193,15 +191,15 @@ label_23A3:
 DR_SIN_NZ: 
   	DEFB  	$C0      ; st-mem-0 ← sin(A/2)   dx, dy, sin(A/2).
 	DEFB  	$02      ; delete         dx, dy
-	defb  	$C2      ; st-mem-2 ← dy
-	defb    $31      ; duplicate
-        defb    $04      ; multiply -> dy²   
+	DEFB  	$C2      ; st-mem-2 ← dy
+	DEFB    $31      ; duplicate
+    DEFB    $04      ; multiply -> dy²   
 
-	defb    $01      ; exchange
-	defb    $C1      ; st-mem-1 <- dx
-        defb    $31      ; duplicate
+	DEFB    $01      ; exchange
+	DEFB    $C1      ; st-mem-1 <- dx
+    DEFB    $31      ; duplicate
 
- 	defb    $38      ; end-calc
+ 	DEFB    $38      ; end-calc
 	
 	jp ARC_CIRC8
 
@@ -384,41 +382,41 @@ skip_circ8:
 ;===============================================================
 ARC_CIRC8:
 	;stack: dx,dy^2
- 	rst     28h
+ 	RST     28H
         
-	defb    $04      ; multiply -> dx^2
-        defb    $0F      ; addition -> dx^2 + dy^2
-        defb    $28       ; sqr -> d			           ;Destroy mem 3 e mem 4
-        defb    $C3      ; st-mem-3 <- d (safe: result pushed)     **********************
+	DEFB    $04      ; multiply -> dx^2
+        DEFB    $0F      ; addition -> dx^2 + dy^2
+        DEFB    $28       ; sqr -> d			           ;Destroy mem 3 e mem 4
+        DEFB    $C3      ; st-mem-3 <- d (safe: result pushed)     **********************
       
 	; ----------------------------  
         ; R = d / (2 * sin(A/2))    Radius
         ; ----------------------------
 	;stack: d
-        defb    $31      ; duplicate
-        defb    $E0      ; get-mem-0 → sin(A/2)
-	defb    $31      ; duplicate 
-        defb    $0F      ; add => 2 * sin(A/2)
-	defb    $05      ; divide => d / (2*sin(A/2)) = R    Radius
-  	defb    $C4      ; st-mem-4 ← R            ***********************
+        DEFB    $31      ; duplicate
+        DEFB    $E0      ; get-mem-0 → sin(A/2)
+	DEFB    $31      ; duplicate 
+        DEFB    $0F      ; add => 2 * sin(A/2)
+	DEFB    $05      ; divide => d / (2*sin(A/2)) = R    Radius
+  	DEFB    $C4      ; st-mem-4 ← R            ***********************
 
 	;--- h² = R² - (d/2)² ---
-       	defb    $31            ; duplicate R
-        defb    $04            ; multiply → R^2
+       	DEFB    $31            ; duplicate R
+        DEFB    $04            ; multiply → R^2
 	 ; ----------------------------
         ; d2 = d / 2
         ; ----------------------------
 	; stack: d,R^2
-	defb    $01      ; exchange → (d, R²)
-        defb    $A2      ; stk-half ;1/2
-        defb    $04      ; multiply -> d/2
+	DEFB    $01      ; exchange → (d, R²)
+        DEFB    $A2      ; stk-half ;1/2
+        DEFB    $04      ; multiply -> d/2
  	; stack R^2, d/2
-        defb    $31      ; duplicate
-        defb    $04      ; multiply → (d/2)^2
-	defb    $03      ; subtract → h²
+        DEFB    $31      ; duplicate
+        DEFB    $04      ; multiply → (d/2)^2
+	DEFB    $03      ; subtract → h²
          ; guardar em mem-0
-	defb    $C0      ; st-mem-0 <- h^2
-	defb    $38      ; end-calc
+	DEFB    $C0      ; st-mem-0 <- h^2
+	DEFB    $38      ; end-calc
 
 
 	;--- Check h² >= 0 ---
@@ -431,19 +429,19 @@ ARC_CIRC8:
 	jp      nz,label_24F9 ; REPORT-Bc: impossible arc
 
 H_pos_expo:
-        rst     28h
-	defb    $e4  	; R
-	defb    $01     ; exchange
-	defb    $e3  	; d
-	defb    $01     ; exchange
-	defb    $28     ; sqrt(h²)    <<<<<<<<<<<<<<<<   ;Destroy mem 3 e mem 4 wihth the new SQR.
-	defb    $c0     ; h-> mem 0
-	defb    $02     ; delete
-	defb    $c3     ; d → mem-3
-	defb    $02     ; delete
-	defb    $c4     ; R → mem-4
-	defb    $02     ; delete
-	defb    $38     ; end-calc
+    RST     28H
+	DEFB    $e4  	; R
+	DEFB    $01     ; exchange
+	DEFB    $e3  	; d
+	DEFB    $01     ; exchange
+	DEFB    $28     ; sqrt(h²)    <<<<<<<<<<<<<<<<   ;Destroy mem 3 e mem 4 wihth the new SQR.
+	DEFB    $c0     ; h-> mem 0
+	DEFB    $02     ; delete
+	DEFB    $c3     ; d → mem-3
+	DEFB    $02     ; delete
+	DEFB    $c4     ; R → mem-4
+	DEFB    $02     ; delete
+	DEFB    $38     ; end-calc
 
 ;===============================================================
 ; Cx = x1 + dx/2 + h * (-dy / d)
@@ -453,55 +451,55 @@ Calcular_Cy:
 	
 	ld      a, ($5C7E)              ; A = y1 (COORDS high byte)
     call    label_2D28              ; ROM: push y1 as FP value
-   	rst     28h                     ; Start FP calculator block
+   	RST     28H                     ; Start FP calculator block
 	;--- Compute Cy ---
 	; stack: y1
-	defb     $E0                     ; get-mem-0 → h
-	defb     $01   					 ; exchange
+	DEFB     $E0                     ; get-mem-0 → h
+	DEFB     $01   					 ; exchange
 	; stack: h,y1
-	defb     $E2                     ; get-mem-2 → dy
-   	defb     $A2                     ; stk-half (0.5)
-   	defb     $04                     ; multiply → dy/2
+	DEFB     $E2                     ; get-mem-2 → dy
+   	DEFB     $A2                     ; stk-half (0.5)
+   	DEFB     $04                     ; multiply → dy/2
    	;defb     $0F                     ; add → y1 + dy/2
-   	defb     $E0                     ; get-mem-0 → h
-   	defb     $E1                     ; get-mem-1 → dx
-   	defb     $E3                     ; get-mem-3 → d
-   	defb     $05                     ; divide → dx / d
-   	defb     $04                     ; multiply → h * (dx/d)
-   	defb     $0F                     ; add → dy/2 + h * (dx/d)
-	defb     $c0                    ; st-mem-0 → -yrel_i
-	defb     $0F                     ; add → Cy= y1 + dy/2 + h * (dx/d)
+   	DEFB     $E0                     ; get-mem-0 → h
+   	DEFB     $E1                     ; get-mem-1 → dx
+   	DEFB     $E3                     ; get-mem-3 → d
+   	DEFB     $05                     ; divide → dx / d
+   	DEFB     $04                     ; multiply → h * (dx/d)
+   	DEFB     $0F                     ; add → dy/2 + h * (dx/d)
+	DEFB     $c0                    ; st-mem-0 → -yrel_i
+	DEFB     $0F                     ; add → Cy= y1 + dy/2 + h * (dx/d)
 
 	; stack: h,Cy
-	defb     $01   			 ; exchange
+	DEFB     $01   			 ; exchange
 	; stack: Cy,h
-	defb     $E0                     ; get-mem-0 → -yrel_i
-	defb     $01   			 ; exchange
+	DEFB     $E0                     ; get-mem-0 → -yrel_i
+	DEFB     $01   			 ; exchange
 	; stack: Cy,-yrel_i,h
-   	defb    $38                      ; end-calc
+   	DEFB    $38                      ; end-calc
 	
 	ld      a, ($5C7D)              ; A = x1 (COORDS low byte)
     call    label_2D28              ; ROM: push x1 as FP value
 	
-	rst     28h                     ; Start FP calculator block
+	RST     28H                     ; Start FP calculator block
 	;--- Compute Cx ---
 	; stack: Cy,-yrel_i,h,x1
-	defb     $01   			 ; exchange
+	DEFB     $01   			 ; exchange
 	; stack: Cy,-yrel_i,x1,h
 	;defb    $E0                     ; get-mem-0 → h
-   	 defb    $E2                     ; get-mem-2 → dy
-   	 defb    $1B                     ; negate → -dy
-   	 defb    $E3                     ; get-mem-3 → d
-   	 defb    $05                     ; divide → -dy / d
-  	 defb    $04                     ; multiply → h * (-dy/d)
-	 defb    $E1                     ; get-mem-1 → dx
-   	 defb    $A2                     ; stk-half (0.5)
-   	 defb    $04                     ; multiply → dx/2
+   	 DEFB    $E2                     ; get-mem-2 → dy
+   	 DEFB    $1B                     ; negate → -dy
+   	 DEFB    $E3                     ; get-mem-3 → d
+   	 DEFB    $05                     ; divide → -dy / d
+  	 DEFB    $04                     ; multiply → h * (-dy/d)
+	 DEFB    $E1                     ; get-mem-1 → dx
+   	 DEFB    $A2                     ; stk-half (0.5)
+   	 DEFB    $04                     ; multiply → dx/2
    	; defb    $0F                     ; add → x1 + dx/2
-   	 defb    $0F                     ; add dx/2 + h * (-dy/d)
-	 defb    $c0                     ; st-mem-0 → -xrel_i
-  	 defb    $0F                     ; add → Cx
-	 defb    $E0                     ; get-mem-0 → ;-xrel_i
+   	 DEFB    $0F                     ; add dx/2 + h * (-dy/d)
+	 DEFB    $c0                     ; st-mem-0 → -xrel_i
+  	 DEFB    $0F                     ; add → Cx
+	 DEFB    $E0                     ; get-mem-0 → ;-xrel_i
   	    	
 
     			
@@ -511,16 +509,16 @@ Calcular_Cy:
 ;;-------------------------------------------
 	;stack ;-Cy,-yrel_i,Cx,-xrel_i
 
-    defb    $E5             ; get-mem-5 -> A (input angle in radians)
-	defb    $31	        ; duplicate
-	defb    $E4             ; get-mem-4 -> R (arc radius)
- 	defb    $04             ; multiply ; N = R * A
-	defb    $27             ; INT → N = floor(R*A)	— number of steps
+    DEFB    $E5             ; get-mem-5 -> A (input angle in radians)
+	DEFB    $31	        ; duplicate
+	DEFB    $E4             ; get-mem-4 -> R (arc radius)
+ 	DEFB    $04             ; multiply ; N = R * A
+	DEFB    $27             ; INT → N = floor(R*A)	— number of steps
 	
-    defb    $C3             ; st-mem-3 ← N
+    DEFB    $C3             ; st-mem-3 ← N
 
  	; Δθ = A / N 
-	defb    $05             ; Division: Δθ = A / N  (angular step)
+	DEFB    $05             ; Division: Δθ = A / N  (angular step)
 
     
 
@@ -532,21 +530,21 @@ Calcular_Cy:
  ;   Note: 'sin' and 'cos' trash locations mem-0 to mem-2
 
     ; stack: ;-Cy,-yrel_i,Cx,-xrel_i,Δθ
-   	defb   $31	       ; duplicate Δθ
-	defb   $1f             ; sin
-	defb   $C4	       ; st-mem-4 ← sin(Δθ)
-	defb   $01             ; exchange
-	defb   $20	       ; cos
-	defb   $C2             ; st-mem-2 ← cos(Δθ)
+   	DEFB   $31	       ; duplicate Δθ
+	DEFB   $1f             ; sin
+	DEFB   $C4	       ; st-mem-4 ← sin(Δθ)
+	DEFB   $01             ; exchange
+	DEFB   $20	       ; cos
+	DEFB   $C2             ; st-mem-2 ← cos(Δθ)
 
 	
-	defb   $02             ; delete
-	defb   $02             ; delete
+	DEFB   $02             ; delete
+	DEFB   $02             ; delete
 	
 	 ; stack: ;-Cy,-yrel_i,Cx,-xrel_i
 
-	defb   $e3             ;N
-    defb   $38             ; END-CALC
+	DEFB   $e3             ;N
+    DEFB   $38             ; END-CALC
 	
 	call   label_1E94      ; routine FIND-INT1 fetches N from stack to A.
 	ld b,a                 ; B = loop counter (N)   
@@ -571,17 +569,17 @@ ARC_DRAW:
 ;   mem-3 = y_rel  (initial relative Y)
 ;===============================================================
     	 ; stack: ;-Cy,-yrel_i,Cx,-xrel_i
-   	 rst  28h
-	 defb   $1B             ; negate → -xrel_i
-	 defb   $c0             ; xrel_i  - mem-0
-	 defb   $02             ; delete
-	 defb   $c1             ; Cx  - mem-1
-	 defb   $02             ; delete
-	 defb   $1B             ; negate → -yrel_i
-	 defb   $c3             ; yrel_i  - mem-3
-	 defb   $02             ; delete
-	 defb   $c5             ; Cy  - mem-5
-	 defb   $38             ; END-CALC
+   	 RST    28h
+	 DEFB   $1B             ; negate → -xrel_i
+	 DEFB   $c0             ; xrel_i  - mem-0
+	 DEFB   $02             ; delete
+	 DEFB   $c1             ; Cx  - mem-1
+	 DEFB   $02             ; delete
+	 DEFB   $1B             ; negate → -yrel_i
+	 DEFB   $c3             ; yrel_i  - mem-3
+	 DEFB   $02             ; delete
+	 DEFB   $c5             ; Cy  - mem-5
+	 DEFB   $38             ; END-CALC
 
 	jr Arc_Loop
 
@@ -612,7 +610,7 @@ Loop_Start:
     ; calculate new  x_rel:
     ; x' = x*cos - y*sin
     ;----------------------------------
-	RST     28h
+		RST     28h
         DEFB    $E0         ; get-mem-0 (x)
         DEFB    $E2         ; get-mem-2 (cos)
     	DEFB    $04         ; multiply
@@ -630,7 +628,7 @@ Loop_Start:
     ; calcular novo y_rel:
     ; y' = x*sin + y*cos
     ;----------------------------------
-	DEFB    $E0         ; get-mem-0 (x)
+		DEFB    $E0         ; get-mem-0 (x)
     	DEFB    $E4         ; get-mem-4 (sin)
     	DEFB    $04         ; multiply
     	DEFB    $E3         ; get-mem-3 (y)
@@ -643,7 +641,7 @@ Loop_Start:
         DEFB    $E5          ; Cy
         DEFB    $0F          ; addition
  	
-	defb    $38          ; END-CALC
+		DEFB    $38          ; END-CALC
 
 ;---------------------------------------
 ; Plot actual point (Cx+x_rel , Cy+y_rel)
@@ -651,7 +649,7 @@ Loop_Start:
 
 	;; STK-TO-BC
 	call label_2307
- 	;call    Plot_circ        ; desenha pixel
+ 	;call    Plot_circ        ; draws pixel
 	call label_22E5 ;+ $4
 	
 	pop bc
@@ -663,4 +661,5 @@ Loop_Start:
 ; --------------------------
 
 	ORG $24B7
+
 
