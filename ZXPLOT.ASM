@@ -1,3 +1,4 @@
+DEVICE ZXSPECTRUM48     ; Sets the device (48K)
 ; -------------------
 ; The Plot subroutine - Replace the one in the ROM @ $22E5; Fits in the space of the original (excluding the LUT)
 ; -------------------
@@ -10,10 +11,12 @@
 ; back on the screen though the colours may change.
 
 
-PLOT_SUB:	EQU	$22E5H
-COORDS: 	EQU $5C7D
+PLOT_SUB	EQU	$22E5
+COORDS	 	EQU $5C7D
 PIXEL_ADD:  EQU $22AA
 PO_ATTR:	EQU $0BDB
+
+	ORG PLOT_SUB
 
 ;; PLOT-SUB
 L22E5:
@@ -50,12 +53,10 @@ L22FD:
 L2303:
 	ld	(hl), a          ; load byte to the screen.
 	jp	PO_ATTR          ; exit to PO-ATTR to set colours for cell.
-	
-;********1 byte free;
-	nop
+	nop 				 ; 1 free byte
 
 Mask_tab: 
-    ;; lookup table with mask for plot 
+;; lookup table with mask for plot 
    	DEFB    $7F   		;01111111 ($7F)
 	DEFB    $BF   		;10111111 ($BF)
 	DEFB    $DF   		;11011111 ($DF)
@@ -64,3 +65,4 @@ Mask_tab:
 	DEFB    $FB   		;11111011 ($FB)
 	DEFB    $FD   		;11111101 ($FD)	
 	DEFB 	$FE   		;11111110 ($FE)
+
