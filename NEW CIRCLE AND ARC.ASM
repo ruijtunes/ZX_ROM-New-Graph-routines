@@ -68,16 +68,16 @@ Plot_circ:
     	ret
 
 label_2358: 
-tabpow2: 
-    ;; lookup table with mask for plot 
-   	DEFB    $7F   ;01111111 ($7F)
-	DEFB    $BF   ;10111111 ($BF)
-	DEFB    $DF   ;11011111 ($DF)
-	DEFB    $EF   ;11101111 ($EF)
-	DEFB    $F7   ;11110111 ($F7)
-	DEFB    $FB   ;11111011 ($FB)
-	DEFB    $FD   ;11111101 ($FD)	
-	DEFB 	$FE   ;11111110 ($FE)
+Mask_tab: 
+;; lookup table with mask for plot 
+   	DEFB    $7F   		;01111111 ($7F)
+	DEFB    $BF   		;10111111 ($BF)
+	DEFB    $DF   		;11011111 ($DF)
+	DEFB    $EF   		;11101111 ($EF)
+	DEFB    $F7   		;11110111 ($F7)
+	DEFB    $FB   		;11111011 ($FB)
+	DEFB    $FD   		;11111101 ($FD)	
+	DEFB 	$FE   		;11111110 ($FE)
 	
 	;*** 2 bytes free
 	nop
@@ -663,3 +663,4 @@ Loop_Start:
 ; --------------------------
 
 	ORG $24B7
+
