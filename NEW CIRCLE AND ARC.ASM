@@ -1,25 +1,24 @@
 ; --------------------
 ; THE NEW 'CIRCLE' COMMAND
 ; --------------------
-;   "Goe not Thou about to Square eyther circle" -
-;   - John Donne, Cambridge educated theologian, 1624
 ;
 ;   Initially, the syntax has been partly checked using the class for the DRAW 
 ;   command which stacks the origin of the circle (X,Y).
 ;---------------------------------------------------------------------
 label_2320:
-	rst	18h	; GET-CHAR              x, y.
-	cp 	$2C	 ; Is character the required comma ?
-	jp	nz, label_1C8A   ; Error Report: Nonsense in BASIC
+	rst	18h				; GET-CHAR              x, y.
+	cp 	$2C	 			; Is character the required comma ?
+	jp	nz, label_1C8A  ; Error Report: Nonsense in BASIC
 
-	rst	20h	 ; NEXT-CHAR advances the parsed character address.
+	rst	20h	 			; NEXT-CHAR advances the parsed character address.
 	call	label_1C82  ; routine EXPT-1NUM stacks radius in runtime.
 	
 	call	label_1BEE   ; routine CHECK-END will return here in runtime
-                             ; if nothing follows the command.
+                         ; if nothing follows the command.
 
 ;   Now make the radius positive and ensure that it is in floating point form 
 ;   so that the exponent byte can be accessed for quick testing.
+
 new_circle_entry:
 ;; FP-CALC              x, y, r.
 	rst	28h   		;; FP-CALC              x, y, r.
@@ -35,7 +34,7 @@ new_circle_entry:
 ;    The circle is no larger than a single pixel so delete the radius from the
 ;    calculator stack and plot a point at the centre.
 
-	rst     28h             ;; FP-CALC              x, y, r.
+    	rst     28h             ;; FP-CALC              x, y, r.
         DEFB    $02             ;;delete                x, y.                  
         DEFB    $38             ;;end-calc              x, y.
 
@@ -69,10 +68,9 @@ Plot_circ:
     	ret
 
 label_2358: 
-;Idela seria  Alinhada a 256 bytes
 tabpow2: 
     ;; lookup table with mask for plot 
-    	DEFB    $7F   ;01111111 ($7F)
+   	DEFB    $7F   ;01111111 ($7F)
 	DEFB    $BF   ;10111111 ($BF)
 	DEFB    $DF   ;11011111 ($DF)
 	DEFB    $EF   ;11101111 ($EF)
@@ -90,9 +88,8 @@ tabpow2:
 ; DRAW_ARC - ZX Spectrum 48K - Fully compatible with ROM
 ; Input: FP calculator stack with [dx, dy, A] (angle in radians)
 ; Output: Draws arc using PLOT (ROM $22E5)
-;
-; KEY :
-;  ; Tested: DRAW 100,50,1.5 → perfect arc
+
+;  Teste: DRAW 100,50,1.5 → perfect arc
 ;===============================================================	
 label_2360:
 draw_arc:
@@ -219,14 +216,9 @@ DR_SIN_NZ:
 ;
 ;   With three parameters, an arc is drawn to the point at offset x,y turning 
 ;   through an angle, in radians, supplied by the third parameter.
-;   The arc will consist of 4 to 252 straight lines each one of which is drawn 
-;   by calls to the DRAW-LINE routine.
-;
-;;   The ARC drawing algorithm make use of the
-;   'ROTATION FORMULA' (see later).  It is only necessary to work out where 
-;   the first line will be drawn and how long it is and then the rotation 
-;   formula takes over and calculates all other rotated points.
-;
+
+;;   The ARC drawing implemented here uses a new algorithm.
+
 ;; DRAW	
 label_2382:
 	rst	18h	; GET-CHAR
@@ -234,7 +226,6 @@ label_2382:
 	jr	z, draw_arc ;forward, if so, to DR-3-PRMS
 
 ;   There are two parameters e.g. DRAW 255,175
-
 	call	label_1BEE   ; routine CHECK-END
 	jp	label_2477   ;jump forward to LINE-DRAW
 
@@ -244,8 +235,8 @@ label_238D:
 ; Circle routine (optimized)
 ; Inputs:
 ;   A  = radius
-;   (5C7D) = Yc (center Y)
-;   (5C7E) = Xc (center X)
+;   ($5C7D) = Yc (center Y)
+;   ($5C7E) = Xc (center X)
 ; Uses BC=(y,x), DE=(Yc,Xc), HL=error
 ; ============================================================
 C8LOOP:
@@ -254,7 +245,7 @@ C8LOOP:
 ; ============================================================
 
    	push hl            ; salvar HL (erro) para usar como temporário
-	push bc 	   ; y,x
+	push bc 	       ; y,x
 	
 	ld  	h,b
   	ld  	l,c
@@ -263,9 +254,9 @@ C8LOOP:
 ; 1º OCTANTE: (Yc + y,Xc + x)
 ; ==================================================	
 	ld  	a,l  ;x
-    	add 	a,e  ;x+Xc
+    add 	a,e  ;x+Xc
 	ld 	c,a  ;c <-- xo+x
-    	ld  	a,h
+    ld  	a,h
   	add 	a,d
 	ld 	b,a  ; yo + y
   	call    Plot_circ       ; (yo + y, xo + x )
@@ -273,9 +264,9 @@ C8LOOP:
 ; 2º OCTANTE: ( Yc - y, Xc + x)
 ; ==================================================
 	ld      a,d
-        sub     h
-        ld      b,a       	; yo - y
-        call    Plot_circ       ; (yo - y,xo + x )
+    sub     h
+    ld      b,a       	; yo - y
+    call    Plot_circ       ; (yo - y,xo + x )
 ; ==================================================
 ; 3º OCTANTE: (Yc - y , Xc - x )
 ; ==================================================
@@ -287,12 +278,11 @@ C8LOOP:
 ; 4º OCTANTE: (Yc + y, Xc - x )
 ; ==================================================
  	ld 	a,h
-    	add     a,d  	
+    add     a,d  	
 	ld 	b,a 	; yo + y
 
    	call    Plot_circ          ; (xo - x, yo + y)
- ;; ---------------------
- ;;----------------------
+ 
 ; ==================================================
 ; 5º OCTANTE: (Yc + x, Xc + y )
 ; ==================================================
@@ -324,17 +314,16 @@ C8LOOP:
 	ld 	a,d
   	add     a,l
  	ld      b,a       ; yo + x
-  	call    Plot_circ        ; (xo - y, yo + x)
+  	call    Plot_circ ; (xo - y, yo + x)
 
 ; ==================================================
-; ; --- Algoritmo Bresenham OTIMIZADO ---
+; ; --- Optimized Bresenham Algorithm ---
 ; ==================================================
 	pop bc ;x,y
 	pop hl
 	
 	ld a,c  ;guarda x
 
-	;; --- Algoritmo Bresenham OTIMIZADO ---
 ; error += 1 + 2*y (B = y)
 	inc     hl          ; error += 1
 
@@ -342,14 +331,14 @@ C8LOOP:
 	ld      c,b         ; c <--  y
 	ld      b,0         ; BC = y
 	add     hl,bc       ; error += y
-	add     hl,bc       ;  ; erro += y (total: + 2*y)
-	;pop     bc          ; restaura x,y
+	add     hl,bc       ; error += y (total: + 2*y)
+	;pop     bc         ; restaura x,y
 
 	ld b,c
 	ld c,a
 	inc     b           ; y++
 
-; Verifica se error - x <= 0 (C = x)
+; Verify if error - x <= 0 (C = x)
 	
 	push    hl          ; [1] preserva error
 
@@ -447,7 +436,7 @@ H_pos_expo:
 	defb    $01     ; exchange
 	defb    $e3  	; d
 	defb    $01     ; exchange
-	defb    $28     ; sqrt(h²)    <<<<<<<<<<<<<<<<   ;DestroY mem 3 e mem 4
+	defb    $28     ; sqrt(h²)    <<<<<<<<<<<<<<<<   ;Destroy mem 3 e mem 4 wihth the new SQR.
 	defb    $c0     ; h-> mem 0
 	defb    $02     ; delete
 	defb    $c3     ; d → mem-3
@@ -463,23 +452,23 @@ H_pos_expo:
 Calcular_Cy:
 	
 	ld      a, ($5C7E)              ; A = y1 (COORDS high byte)
-        call    label_2D28              ; ROM: push y1 as FP value
+    call    label_2D28              ; ROM: push y1 as FP value
    	rst     28h                     ; Start FP calculator block
 	;--- Compute Cy ---
 	; stack: y1
 	defb     $E0                     ; get-mem-0 → h
-	defb     $01   			 ; exchange
+	defb     $01   					 ; exchange
 	; stack: h,y1
 	defb     $E2                     ; get-mem-2 → dy
-    	defb     $A2                     ; stk-half (0.5)
-    	defb     $04                     ; multiply → dy/2
-    	;defb     $0F                     ; add → y1 + dy/2
-    	defb     $E0                     ; get-mem-0 → h
-    	defb     $E1                     ; get-mem-1 → dx
-    	defb     $E3                     ; get-mem-3 → d
-    	defb     $05                     ; divide → dx / d
-    	defb     $04                     ; multiply → h * (dx/d)
-    	defb     $0F                     ; add → dy/2 + h * (dx/d)
+   	defb     $A2                     ; stk-half (0.5)
+   	defb     $04                     ; multiply → dy/2
+   	;defb     $0F                     ; add → y1 + dy/2
+   	defb     $E0                     ; get-mem-0 → h
+   	defb     $E1                     ; get-mem-1 → dx
+   	defb     $E3                     ; get-mem-3 → d
+   	defb     $05                     ; divide → dx / d
+   	defb     $04                     ; multiply → h * (dx/d)
+   	defb     $0F                     ; add → dy/2 + h * (dx/d)
 	defb     $c0                    ; st-mem-0 → -yrel_i
 	defb     $0F                     ; add → Cy= y1 + dy/2 + h * (dx/d)
 
@@ -489,10 +478,10 @@ Calcular_Cy:
 	defb     $E0                     ; get-mem-0 → -yrel_i
 	defb     $01   			 ; exchange
 	; stack: Cy,-yrel_i,h
-    	defb    $38                      ; end-calc
+   	defb    $38                      ; end-calc
 	
 	ld      a, ($5C7D)              ; A = x1 (COORDS low byte)
-        call    label_2D28              ; ROM: push x1 as FP value
+    call    label_2D28              ; ROM: push x1 as FP value
 	
 	rst     28h                     ; Start FP calculator block
 	;--- Compute Cx ---
@@ -522,13 +511,13 @@ Calcular_Cy:
 ;;-------------------------------------------
 	;stack ;-Cy,-yrel_i,Cx,-xrel_i
 
-      	defb    $E5             ; get-mem-5 -> A (input angle in radians)
+    defb    $E5             ; get-mem-5 -> A (input angle in radians)
 	defb    $31	        ; duplicate
 	defb    $E4             ; get-mem-4 -> R (arc radius)
  	defb    $04             ; multiply ; N = R * A
 	defb    $27             ; INT → N = floor(R*A)	— number of steps
 	
-       	defb    $C3             ; st-mem-3 ← N
+    defb    $C3             ; st-mem-3 ← N
 
  	; Δθ = A / N 
 	defb    $05             ; Division: Δθ = A / N  (angular step)
@@ -557,16 +546,15 @@ Calcular_Cy:
 	 ; stack: ;-Cy,-yrel_i,Cx,-xrel_i
 
 	defb   $e3             ;N
-        defb   $38             ; END-CALC
+    defb   $38             ; END-CALC
 	
-	CALL   label_1E94      ; routine FIND-INT1 fetches N from stack to A.
+	call   label_1E94      ; routine FIND-INT1 fetches N from stack to A.
 	ld b,a                 ; B = loop counter (N)   
 	push bc
 	;or      a              ; Test if N = 0
-    	;ret     z              ; Exit early if N=0 (degenerate case)
+    ;ret     z              ; Exit early if N=0 (degenerate case)
 
 Draw_Arc_DDA:
-
 ARC_DRAW:
 ;===============================================================
 ; INITIALIZATION OF x_rel AND y_rel (Relative to Arc Center)
@@ -595,13 +583,9 @@ ARC_DRAW:
 	 defb   $c5             ; Cy  - mem-5
 	 defb   $38             ; END-CALC
 
-
-
 	jr Arc_Loop
 
 ;---------------------------------------------------------------
-;****7 bytes free
-
 	ORG $2477
 ;; LINE-DRAW
 label_2477:  
@@ -625,7 +609,7 @@ Loop_Start:
 	push bc
 	
     ;----------------------------------
-    ; calcular novo x_rel:
+    ; calculate new  x_rel:
     ; x' = x*cos - y*sin
     ;----------------------------------
 	RST     28h
@@ -662,7 +646,7 @@ Loop_Start:
 	defb    $38          ; END-CALC
 
 ;---------------------------------------
-; Plotar ponto atual (Cx+x_rel , Cy+y_rel)
+; Plot actual point (Cx+x_rel , Cy+y_rel)
 ;---------------------------------------
 
 	;; STK-TO-BC
@@ -671,16 +655,11 @@ Loop_Start:
 	call label_22E5 ;+ $4
 	
 	pop bc
-	
 	djnz Loop_Start
-
 	ret
-
-	;call $2DE3                 ; PRINT-FP (imprime número) x
-	;ld a, ':'
-	;rst $10                    ; PRINT-CHR
 
 ; --------------------------
 ; THE 'LINE DRAWING' ROUTINE
 ; --------------------------
+
 	ORG $24B7
