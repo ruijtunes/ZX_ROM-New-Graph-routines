@@ -12,18 +12,7 @@ A pixel can be reset (inverse 1), toggled (over 1), or set ( with inverse and ov
 With both switches on, the byte is simply put back on the screen though the colours may change.
 
 
-The source code is a .asm text file that can be compiled with a Z80 assembler like sjasmplus or other, and run in a Spectrum emulator like the Fuse or Spetaculator. 
-
-Run the assembler with:
-
-sjasmplus --lst=zxrom.lst zxplot.asm
-
-
-Sjasmplus is a command-line cross-compiler of assembly language for [Z80 CPU](https://en.wikipedia.org/wiki/Zilog_Z80).
-
-Supports many [ZX-Spectrum](https://en.wikipedia.org/wiki/ZX_Spectrum) specific directives, has built-in Lua scripting engine and 3-pass design.
-
-# ZX-Plot
+# ZX-Circle
 Fast plot routine using LUT to replace the original ROM
 
 Graphic routine in assembler (Z80) for plotting pixels with ZX Spectrum.
@@ -37,7 +26,7 @@ A pixel can be reset (inverse 1), toggled (over 1), or set ( with inverse and ov
 With both switches on, the byte is simply put back on the screen though the colours may change.
 
 
-The source code is a .asm text file that can be compiled with a Z80 assembler like sjasmplus or other, and run in a Spectrum emulator like the Fuse or Spetaculator. 
+# The source code is a .asm text file that can be compiled with a Z80 assembler like sjasmplus or other, and run in a Spectrum emulator like the Fuse or Spetaculator. 
 
 Run the assembler with:
 
