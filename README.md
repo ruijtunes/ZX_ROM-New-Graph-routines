@@ -19,8 +19,20 @@ Graphic routine in assembler (Z80) for drawing circles  with ZX Spectrum.
 
 The Circle subroutine - Replace the one in the ROM @ $2320; Fits in the space of the original
 
-The algorithm used is the mid-point algorithm.
+The exact definition of a circle centered at the origin is:
 
+x^2+y^2=r^2
+
+Solving for y gives y=± SQR (r^2−x^2)
+Because of symmetry, we can mirror the solution (x,y) pairs we get in Quadrant I into the other quadrants. 
+
+The algorithm used is the “Midpoint Circle Algorithm”
+
+Start out from the top of the circle (pixel (0,r)). 
+Move right (east (E)) or down-right (southeast (SE)), whichever is closer to the circle.
+Stop when x=y
+This implementation gives a more aesthetically pleasing circle than the one in the original ROM. 
+ 
 # ZX-Arc
 
 Arc: New Arc algorithm
