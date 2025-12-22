@@ -23,68 +23,25 @@ The algorithm used is the mid-point algorithm.
 
 # ZX-Arc
 
-;===============================================================
-; Arc: New Arc algorithm
-;===============================================================
-;We want to draw a circular arc that:
-;Starts at P1
-;Ends at P2
-;Rotates counterclockwise by a total angle θ
+Arc: New Arc algorithm
+Classic geometric algorithm for drawing a circular arc from two points and an angle (DRAW x,y,a),
+using the center of the circle calculated via the formula:
 
-;          C (center) 
-;         /|\
-;        / | \
-;       /  |  \
-;      /   |   \
-;     /    h    \
-;    /     |     \
-;   P1-----M-----P2
-;      d/2    d/2
-;   <------d------>
-;
-; * d = distance (P1,P2)
-; * R = circle radius
-; * h = distance from center C to the line P1P2 (chord height)
-;   θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
-;
-; Step 1: Compute the radius R
-; Use the law of sines in triangle P1CP2:
-;      d / sin(θ) = R / sin(θ/2)
-;      => R = d / (2 * sin(θ/2))
-; This is exact for any θ in (0, 2*pi)
-;
-;
-; Step 2: Compute the height h (distance from center to chord)
-; Apply Pythagoras in the right triangle C - M - P1
-; (M is the midpoint of segment P1P2):
-;      R^2 = h^2 + (d/2)^2
-;      => h = sqrt(R^2 - (d/2)^2)
-;
-; Step 3: Find the center C = (Cx, Cy)
-;
-; 1. Midpoint of the segment:
-;    Mx = x1 + dx/2
-;    My = y1 + dy/2
-;    (dx = x2 - x1, dy = y2 - y1)
-;
-; 2.  Perpendicular vector to (dx,dy):
-;    For counter-clockwise arc: n = (-dy, dx)
-;    (for clockwise arc just flip the sign)
-;
-; 3. Unit perpendicular vector:
-;    d = sqrt(dx*dx + dy*dy)      // length of P1P2
-;    ux = -dy / d
-;    uy =  dx / d
-;
-; 4. Center coordinates:
-;    Cx = Mx + h * ux
-;    Cy = My + h * uy
-;    (use -h for the other possible arc - the one on the opposite side)
-;
-;
-; Step 4: Draw the arc
-; With center C and radius R, draw the arc from P1 to P2 using Plot
+R=d/(2⋅sin(θ/2)),h=√(R^2-(d/2)^2 )
 
+And then determining the center (C_x,C_y) based on the perpendicular to the segment.
+
+ALGORITHM OBJECTIVE
+Given:
+Starting point: P_1=(x_1,y_1)
+Ending point: P_2=(x_2,y_2) → that is, displacement dx=x_2-x_1, dy=y_2-y_1
+
+Rotation angle: θ (in radians, counterclockwise)
+We want to draw a circular arc that:
+Starts at P_1
+Ends at P_2
+Rotates counterclockwise with a total angle θ
+________________________________________
 
 # Assembling
 
