@@ -62,14 +62,7 @@ Given:
 - Starting point: \( P_1 = (x_1, y_1) \)
 - Ending point: \( P_2 = (x_2, y_2) \)
 
-
-- ```markdown
-d = √(dx² + dy²)
-R = d / (2 sin(θ / 2))
-h = √(R² − (d / 2)²)
-M = (x₁ + dx / 2 , y₁ + dy / 2)
-n = (−dy / d , dx / d)
-C = M + h · n
+![Equations](equations.svg)
 
 
 
