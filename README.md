@@ -61,7 +61,7 @@ Algorithm Objective
 Given:
 - Starting point: P1 = (x1, y1) 
 - Ending point: P2 = (x2, y2) 
-- With center C and radius R, draw the arc from P1 to P2 with angle (\theta).
+- With center C and radius R, draw the arc from P1 to P2 with angle θ.
 
 ![Equations](equations.png)
 
