@@ -51,10 +51,10 @@ using the center of the circle.
           d/2    d/2
        <------d------>
               
-d = distance (P1,P2)
-R = circle radius
-h = distance from center C to the line P1P2 (chord height)
-θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
+- d = distance (P1,P2)
+- R = circle radius
+- h = distance from center C to the line P1P2 (chord height)
+- θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
 
 Algorithm Objective
 
