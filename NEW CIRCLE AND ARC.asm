@@ -19,7 +19,7 @@ FIND_INT1:  EQU $1E94
 REPORT_BC:  EQU $24F9
 
 REPORT_C:   EQU $1C8A
-COORDS	EQU $5C7D
+COORDS:	EQU $5C7D
 
 
             ORG $2320
@@ -556,5 +556,6 @@ Loop_Start:
            
             ORG $24B7
 DRAW_LINE:
+
 
 
