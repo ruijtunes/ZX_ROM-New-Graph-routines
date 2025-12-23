@@ -56,49 +56,20 @@ R = circle radius
 h = distance from center C to the line P1P2 (chord height)
 θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
 
-## Algorithm Objective
+Algorithm Objective
 
 Given:
 - Starting point: \( P_1 = (x_1, y_1) \)
 - Ending point: \( P_2 = (x_2, y_2) \)
 
-Displacement:
-\[
-dx = x_2 - x_1
-\]
-\[
-dy = y_2 - y_1
-\]
 
-Distance between points:
-\[
-d = \sqrt{dx^2 + dy^2}
-\]
-
-Circle radius:
-\[
-R = \frac{d}{2 \sin\left(\frac{\theta}{2}\right)}
-\]
-
-Height from midpoint to center:
-\[
-h = \sqrt{R^2 - \left(\frac{d}{2}\right)^2}
-\]
-
-Midpoint:
-\[
-M = \left(x_1 + \frac{dx}{2},\; y_1 + \frac{dy}{2}\right)
-\]
-
-Normal unit vector:
-\[
-\mathbf{n} = \frac{(-dy,\; dx)}{d}
-\]
-
-Circle center:
-\[
-C = M + h \cdot \mathbf{n}
-\]
+- ```markdown
+d = √(dx² + dy²)
+R = d / (2 sin(θ / 2))
+h = √(R² − (d / 2)²)
+M = (x₁ + dx / 2 , y₁ + dy / 2)
+n = (−dy / d , dx / d)
+C = M + h · n
 
 
 
