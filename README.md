@@ -70,7 +70,7 @@ We want to draw a circular arc that:
 Starts at P_1
 Ends at P_2
 Rotates counterclockwise with a total angle θ
-________________________________________
+
 
 # Assembling
 
