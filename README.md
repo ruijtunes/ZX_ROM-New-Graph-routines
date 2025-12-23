@@ -37,7 +37,7 @@ This implementation gives a more aesthetically pleasing circle than the one in t
 
 Arc: New Arc algorithm
 Classic geometric algorithm for drawing a circular arc from two points and an angle (DRAW x,y,a),
-using the center of the circle calculated via the formula:
+using the center of the circle.
 
                
               C (center) 
@@ -56,25 +56,50 @@ R = circle radius
 h = distance from center C to the line P1P2 (chord height)
 θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
 
- 	
-d=√(dx^2+dy^2 )
-R=d/(2sin⁡(θ/2))
-h=√(R^2-(d/2)^2 )
-M=(x_1+dx/2,y_1+dy/2)
-n=((-dy,dx))/d
-C=M+h⋅n Center
+## Algorithm Objective
 
-
-ALGORITHM OBJECTIVE
 Given:
-Starting point: P_1=(x_1,y_1)
-Ending point: P_2=(x_2,y_2) → that is, displacement dx=x_2-x_1, dy=y_2-y_1
+- Starting point: \( P_1 = (x_1, y_1) \)
+- Ending point: \( P_2 = (x_2, y_2) \)
 
-Rotation angle: θ (in radians, counterclockwise)
-We want to draw a circular arc that:
-Starts at P_1
-Ends at P_2
-Rotates counterclockwise with a total angle θ
+Displacement:
+\[
+dx = x_2 - x_1
+\]
+\[
+dy = y_2 - y_1
+\]
+
+Distance between points:
+\[
+d = \sqrt{dx^2 + dy^2}
+\]
+
+Circle radius:
+\[
+R = \frac{d}{2 \sin\left(\frac{\theta}{2}\right)}
+\]
+
+Height from midpoint to center:
+\[
+h = \sqrt{R^2 - \left(\frac{d}{2}\right)^2}
+\]
+
+Midpoint:
+\[
+M = \left(x_1 + \frac{dx}{2},\; y_1 + \frac{dy}{2}\right)
+\]
+
+Normal unit vector:
+\[
+\mathbf{n} = \frac{(-dy,\; dx)}{d}
+\]
+
+Circle center:
+\[
+C = M + h \cdot \mathbf{n}
+\]
+
 
 
 # Assembling
