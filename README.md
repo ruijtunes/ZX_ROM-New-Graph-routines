@@ -64,8 +64,6 @@ Given:
 
 ![Equations](equations.svg)
 
-
-
 # Assembling
 
 The source code is a .asm text file that can be compiled with a Z80 assembler like sjasmplus or other, and run in a Spectrum emulator like the Fuse or Spetaculator. 
