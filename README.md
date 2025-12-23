@@ -39,6 +39,15 @@ Arc: New Arc algorithm
 Classic geometric algorithm for drawing a circular arc from two points and an angle (DRAW x,y,a),
 using the center of the circle calculated via the formula:
 
+               C
+             /   |  \
+          /      |     \
+       /         |        \
+    /           h          \
+   P1-----M------P2
+      d/2
+
+
 R=d/(2⋅sin(θ/2)),h=√(R^2-(d/2)^2 )
 
 And then determining the center (C_x,C_y) based on the perpendicular to the segment.
