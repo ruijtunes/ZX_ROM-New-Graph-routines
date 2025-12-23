@@ -28,10 +28,10 @@ Because of symmetry, we can mirror the solution (x,y) pairs we get in Quadrant I
 
 The algorithm used is the “Midpoint Circle Algorithm”
 
-Start out from the top of the circle (pixel (0,r)). 
-Move right (east (E)) or down-right (southeast (SE)), whichever is closer to the circle.
-Stop when x=y
-This implementation gives a more aesthetically pleasing circle than the one in the original ROM. 
+- Start out from the top of the circle (pixel (0,r)). 
+- Move right (east (E)) or down-right (southeast (SE)), whichever is closer to the circle.
+- Stop when x=y
+- This implementation gives a more aesthetically pleasing circle than the one in the original ROM. 
  
 # ZX-Arc
 
