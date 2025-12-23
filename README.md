@@ -56,9 +56,14 @@ R = circle radius
 h = distance from center C to the line P1P2 (chord height)
 θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
 
-R=d/(2⋅sin(θ/2)),h=√(R^2-(d/2)^2 )
+ 	
+d=√(dx^2+dy^2 )	Distance
+R=d/(2sin⁡(θ/2))	Radius
+h=√(R^2-(d/2)^2 )	Height
+M=(x_1+dx/2,y_1+dy/2)	Midle
+n=((-dy,dx))/d	Perpendicular
+C=M+h⋅n Center
 
-And then determining the center (C_x,C_y) based on the perpendicular to the segment.
 
 ALGORITHM OBJECTIVE
 Given:
