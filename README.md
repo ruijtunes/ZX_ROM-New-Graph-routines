@@ -59,12 +59,13 @@ h = distance from center C to the line P1P2 (chord height)
 Algorithm Objective
 
 Given:
-- Starting point: \( P1 = (x1, y1) \)
-- Ending point: \( P2 = (x2, y2) \)
+- Starting point: P1 = (x1, y1) 
+- Ending point: P2 = (x2, y2) 
+- With center C and radius R, draw the arc from P1 to P2 with angle (\theta).
 
 ![Equations](equations.png)
 
-With center C and radius R, draw the arc from P1 to P2 with angle (\theta).
+
 
 # Assembling
 
