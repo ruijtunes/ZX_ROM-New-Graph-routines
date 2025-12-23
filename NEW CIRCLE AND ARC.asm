@@ -6,26 +6,32 @@
 ; Initially, the syntax has been partly checked using the class for the DRAW
 ; command which stacks the origin of the circle (X,Y).
 ; --------------------------------------------------------------------------------
+
+EXPT_1NUM:	EQU $1C82
+PIXEL_ADD:  EQU $22AA
+CHECK_END:	EQU $1BEE
+
 label_2320:
             rst     18h                             ; GET-CHAR x, y.
             cp      $2C                             ; Is character the required comma ?
             jp      nz, label_1C8A                  ; Error Report: Nonsense in BASIC
             rst     20h                             ; NEXT-CHAR advances the parsed character address.
-            call    label_1C82                      ; routine EXPT-1NUM stacks radius in runtime.
-            call    label_1BEE                      ; routine CHECK-END will return here in runtime
-                                                   ; if nothing follows the command.
+            call    EXPT_1NUM                       ; routine EXPT-1NUM stacks radius in runtime.
+            call    CHECK_END                       ; routine CHECK-END will return here in runtime
+                                                    ; if nothing follows the command.
 ; Now make the radius positive and ensure that it is in floating point form
 ; so that the exponent byte can be accessed for quick testing.
 new_circle_entry:
 ;; FP-CALC x, y, r.
-            RST     28H                             ;; FP-CALC x, y, r.
-            DEFB    $2A                             ;; abs x, y, r.
-            DEFB    $3D                             ;; re-stack x, y, r.
-            DEFB    $38                             ;; end-calc x, y, r.
+            RST     28H                             ; FP-CALC x, y, r.
+            DEFB    $2A                             ; abs x, y, r.
+            DEFB    $3D                             ; re-stack x, y, r.
+            DEFB    $38                             ; end-calc x, y, r.
             ld      a,(hl)                          ; Fetch first, floating-point, exponent byte.
             cp      $81                             ; Compare to one.
-            jr      nc,label_233B                   ; Forward to C-R-GRE-1
-                                                   ; if circle radius is greater than one.
+            jr      nc,L233B                        ; Forward to C-R-GRE-1
+                                                    ; if circle radius is greater than one.
+
 ; The circle is no larger than a single pixel so delete the radius from the
 ; calculator stack and plot a point at the centre.
             RST     28H                             ;; FP-CALC x, y, r.
@@ -34,7 +40,7 @@ new_circle_entry:
             jr      label_22DC                      ; back to PLOT routine to just plot x,y.
 ; ---
 ;; C-R-GRE-1
-label_233B:
+L233B:
             call    label_2314                      ;; STK-TO-A A = radius
             push    af
             call    label_2307                      ; STK-TO-BC C=Xc, B=Yc
@@ -574,4 +580,5 @@ Loop_Start:
 ; -----------------------------
            
             ORG $24B7
+
 
