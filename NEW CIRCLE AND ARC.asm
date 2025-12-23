@@ -19,7 +19,8 @@ FIND_INT1:  EQU $1E94
 REPORT_BC:  EQU $24F9
 
 REPORT_C:   EQU $1C8A
-COORDS:	EQU $5C7D
+COORDS:     EQU $5C7D
+STACK_A:    EQU $2D28
 
 
             ORG $2320
@@ -371,7 +372,7 @@ H_pos_expo:
 ;===============================================================
 Calcular_Cy:
             ld      a, ($5C7E)                       ; A = y1 (COORDS high byte)
-            call    label_2D28                       ; ROM: push y1 as FP value
+            call    STACK_A                          ; ROM: push y1 as FP value
             RST     28H                              ; Start FP calculator block
             ; --- Compute Cy ---
             ; stack: y1
@@ -399,7 +400,7 @@ Calcular_Cy:
             DEFB    $38                              ; end-calc
 
             ld      a, (COORDS)                       ; A = x1 (COORDS low byte)
-            call    label_2D28                       ; ROM: push x1 as FP value
+            call    STACK_A                       ; ROM: push x1 as FP value
             RST     28H                              ; Start FP calculator block
             ; --- Compute Cx ---
             ; stack: Cy,-yrel_i,h,x1
@@ -556,6 +557,7 @@ Loop_Start:
            
             ORG $24B7
 DRAW_LINE:
+
 
 
 
