@@ -40,23 +40,21 @@ Classic geometric algorithm for drawing a circular arc from two points and an an
 using the center of the circle calculated via the formula:
 
                C
-;          C (center) 
-;         /|\
-;        / | \
-;       /  |  \
-;      /   |   \
-;     /    h    \
-;    /     |     \
-;   P1-----M-----P2
-;      d/2    d/2
-;   <------d------>
-;
-; * d = distance (P1,P2)
-; * R = circle radius
-; * h = distance from center C to the line P1P2 (chord height)
-;   θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
-      d/2
-
+              C (center) 
+               /|\
+               / | \
+               /  |  \
+               /   |   \
+               /    h    \
+               /     |     \
+               P1-----M-----P2
+               d/2    d/2
+              <------d------>
+              
+d = distance (P1,P2)
+R = circle radius
+h = distance from center C to the line P1P2 (chord height)
+θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
 
 R=d/(2⋅sin(θ/2)),h=√(R^2-(d/2)^2 )
 
