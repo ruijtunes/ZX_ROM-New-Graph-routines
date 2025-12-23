@@ -108,20 +108,16 @@ draw_arc:
 ; Starts at P1
 ; Ends at P2
 ; Rotates counterclockwise by a total angle θ
-; C (center)
-; /\
-;  \\
-; /  \
-;  \\
-; /  \
-;  \\
-; /  \
-;  \\
-; / h \
-;  \\
-; P1----M----P2
-; d/2   d/2
-; <------ d ------>
+;          C (center) 
+;         /|\
+;        / | \
+;       /  |  \
+;      /   |   \
+;     /    h    \
+;    /     |     \
+;   P1-----M-----P2
+;      d/2    d/2
+;   <------d------>
 ;
 ; * d = distance (P1,P2)
 ; * R = circle radius
@@ -577,3 +573,4 @@ Loop_Start:
 ; THE 'LINE DRAWING' ROUTINE
 ; -----------------------------
            
+
