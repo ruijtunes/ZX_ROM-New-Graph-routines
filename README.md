@@ -62,7 +62,7 @@ Given:
 - Starting point: \( P_1 = (x_1, y_1) \)
 - Ending point: \( P_2 = (x_2, y_2) \)
 
-![Equations](equations.svg)
+![Equations](equations.png)
 
 # Assembling
 
