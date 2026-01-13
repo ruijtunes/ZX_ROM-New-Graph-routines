@@ -65,6 +65,13 @@ Given:
 
 ![Equations](equations.png)
 
+Stage	Formula	Result
+1	\(d = \sqrt{dx^2 + dy^2}\)	Distance between points
+2	\(R = \frac{d}{2\sin (\theta/2)}\)	Circle Radius
+3	\(h = \sqrt{R^2-(d/2)^2}\)	Height from midpoint to center
+4	\(M = (x_1+dx/2, y_1 + dy/2)\)	Midpoint
+5	\(\vec{n} = \frac{(-dy, dx)}{d}\)	Normal unit vector
+6	\(C=M+h \cdot \vec{n}\)	Circle center
 
 
 # Assembling
