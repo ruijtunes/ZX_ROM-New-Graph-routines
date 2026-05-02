@@ -74,16 +74,16 @@ Many classic computers and systems used Linear Congruential Generators (LCGs) be
 
 **LCG Algorithm - Linear Congruential Generator**
 
-X(n+1) = (a * X(n) + c) mod m
+_X(n+1) = (a * X(n) + c) mod m_
 
-_m_ (Modulus): Defines the maximum period (how many numbers are generated before the sequence repeats).
-_a_ (Multiplier): Determines how well the values are distributed throughout the sequence.
-_c_ (Increment): When _c = 0_, the generator is called a Multiplicative Congruential Generator, also known as a Lehmer generator.
+- _m_ (Modulus): Defines the maximum period (how many numbers are generated before the sequence repeats).
+- _a_ (Multiplier): Determines how well the values are distributed throughout the sequence.
+- _c_ (Increment): When _c = 0_, the generator is called a Multiplicative Congruential Generator, also known as a Lehmer generator.
 
 
 **SAM Coupé RND Generator**
 
-The RND routine originally proposed and used in the SAM Coupé employs an LCG with modulus 65537 (the Fermat prime F4 = 2^16 + 1), multiplier 254, and increment 253. This differs from the ZX Spectrum implementation, which uses multiplier 75 and increment 0.
+The RND routine originally proposed and used in the SAM Coupé employs an LCG with modulus _65537_ (the Fermat prime _F4 = 2^16 + 1_), multiplier _254_, and increment _253_. This differs from the ZX Spectrum implementation, which uses multiplier _75_ and increment _0_.
 
 The recurrence can be written as:
 
@@ -96,7 +96,7 @@ or equivalently:
 
 **ZX Spectrum RND Generator**
 
-The Sinclair Research ZX Spectrum (1982) uses a Lehmer-style multiplicative generator. It operates on 16-bit values, using the Fermat prime F4 = 65537 as modulus and 75 as a primitive root modulo 65537.
+The Sinclair Research ZX Spectrum (1982) uses a Lehmer-style multiplicative generator. It operates on 16-bit values, using the Fermat prime _F4 = 65537_ as modulus and _75_ as a primitive root modulo _65537_.
 
 The core formula used in the original ZX ROM is:
 
@@ -107,16 +107,16 @@ The core formula used in the original ZX ROM is:
 
 A Fermat prime has the form:  _2^(2^n) + 1_. For _n = 4: 2^16 + 1 = 65537_. This is the largest known Fermat prime.
 
-If _m = 65537_ (a prime number) is used together with a multiplier a that is a primitive root modulo _65537_ (such as 75 or 254), the generator cycles through all 65,536 possible non-zero states before repeating, achieving the maximum possible period.
+If _m = 65537_ (a prime number) is used together with a multiplier _a_ that is a primitive root modulo _65537_ (such as _75_ or _254_), the generator cycles through all 65,536 possible non-zero states before repeating, achieving the maximum possible period.
 
 
 **Primitive Root Modulo 65537**
 
-Saying that 75 or 254 is a primitive root modulo 65537 means that successive powers:
+Saying that _75_ or _254_ is a primitive root modulo 65537 means that successive powers:
 
 _g_^1, _g_^2, _g_^3, ...
 
-taken modulo 65537 generate every integer from 1 to 65536 exactly once before the cycle repeats.
+taken modulo _65537_ generate every integer from _1 to 65536_ exactly once before the cycle repeats.
 
 This guarantees full traversal of the multiplicative group and therefore maximum period for the generator.
 
@@ -125,9 +125,9 @@ This guarantees full traversal of the multiplicative group and therefore maximum
 
 A useful identity is:
 
-254 * (X + 1) = 256 * (X + 1) - 2 * (X + 1)
+_254 * (X + 1) = 256 * (X + 1) - 2 * (X + 1)_
 
-On a 16-bit machine, multiplying by 256 is simply an 8-bit left shift (or byte rotation): the low byte L becomes the high byte H, and the new low byte becomes 0.
+On a 16-bit register, multiplying by 256 is simply an 8-bit left shift (or byte rotation): the low byte L becomes the high byte H, and the new low byte becomes 0.
 
 This allows multiplication by 254 to be implemented efficiently using shifts, subtraction, and carry handling, avoiding a costly general-purpose multiplication routine.
 
