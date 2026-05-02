@@ -119,7 +119,7 @@ draw_arc:
 ; Eliminating this case here prevents division by zero at later stage.
             DEFB    $02                              ;; delete x, y.
             DEFB    $38                              ;; end-calc x, y.
-            jp      L2477                            ; forward to LINE-DRAW
+            jp      LINE_DRAW                        ; forward to LINE-DRAW
 ; ---
 ;===============================================================
 ; Valid arc: New Arc algorithm
@@ -171,16 +171,15 @@ DR_SIN_NZ:
 ; With three parameters, an arc is drawn to the point at offset x,y turning
 ; through an angle, in radians, supplied by the third parameter.
 ; The ARC drawing implemented here uses a new algorithm.
-;; DRAW
-label_2382:
+;label_2382:
+DRAW:
             rst     18h                              ; GET-CHAR
             cp      $2C                              ; is it the comma character ?
             jr      z, draw_arc                      ; forward, if so to new draw_arc 
 ; There are two parameters e.g. DRAW 255,175
             call    CHECK_END                        ; routine CHECK-END
-            jp      L2477                            ; jump forward to LINE-DRAW
+            jp      LINE_DRAW                        ; jump forward to LINE-DRAW
 ; ---
-;;DR-3-PRMS
 C8LOOP:
 ; ============================================================
 ; Circle routine (optimized)
@@ -264,6 +263,7 @@ C8LOOP:
             pop     bc                               ; x,y
             pop     hl
             ld      a,c                              ; save x
+
 ; error += 1 + 2*y (B = y)
             inc     hl                               ; error += 1
             ld      c,b                              ; c <-- y
@@ -300,7 +300,7 @@ C8LOOP:
 skip_circ8:
             ld      a,c
             cp      b                                ; y <= x?
-            jp      nc,C8LOOP                        ; If yes, continue
+            jp      nc,C8LOOP                        ; If yes, continue with next point, else exit loop.
             JP      TEMPS                            ; TEMPS
 
 ;===============================================================
@@ -313,6 +313,18 @@ ARC_CIRC8:
             DEFB    $04                              ; multiply -> dx^2
             DEFB    $0F                              ; addition -> dx^2 + dy^2
             DEFB    $28                              ; sqr -> d       ; Destroy mem 3 and mem 4
+
+ ;*** EDGE CASE d=0 ***
+           defb    $31         ; duplicate d
+           defb    $30         ; not → 1 if d=0, 0 se d≠0
+           defb    $30 
+           defb    $00         ; jump-true if d≠0
+           defb    ARC_D0 - $  ;   → jump to clean and plot
+
+           defb    $38         ; end-calc
+           jp      TEMPS       ;jump back and exit via TEMPS	
+
+ARC_D0:
             DEFB    $C3                              ; st-mem-3 <- d (safe: result pushed) ************
             ; ------------------------------------
             ; R = d / (2 * sin(A/2)) Radius
@@ -340,25 +352,20 @@ ARC_CIRC8:
             DEFB    $03                              ; subtract → h²
             ; store in mem-0
             DEFB    $C0                              ; st-mem-0 <- h^2
-            DEFB    $38                              ; end-calc
-
-            ; --- Check h² >= 0 ---
-            ; The HL register now addresses the exponent byte
-            ld      a,(hl)                           ; A = exponent
-            and     a
-            jr      z, Calcular_Cy                   ; exponent == 0 => value is 0
-            inc     hl
-            bit     7,(hl)
-            jp      nz,REPORT_BC                     ; REPORT-BC: impossible arc
-
-H_pos_expo:
-            RST     28H
+           
             DEFB    $e4                              ; R
             DEFB    $01                              ; exchange
             DEFB    $e3                              ; d
             DEFB    $01                              ; exchange
             DEFB    $28                              ; sqrt(h²) <<<<< ; Destroy mem 3 and mem 4 with the new SQR.
-            DEFB    $c0                              ; h -> mem 0
+
+            defb $E5                                 ; get-mem-5 → A
+    	defb $29                                 ; sgn(A) → ±1
+    	defb $04                                 ; multiply → h·sgn(A)  Allow CW and CCW
+
+
+            DEFB    $c0                              ; st-mem-0 ← h_signed
+           
             DEFB    $02                              ; delete
             DEFB    $c3                              ; d → mem-3
             DEFB    $02                              ; delete
@@ -430,6 +437,15 @@ Calcular_Cy:
             DEFB    $31                              ; duplicate
             DEFB    $E4                              ; get-mem-4 -> R (arc radius)
             DEFB    $04                              ; multiply ; N = R * A
+
+;-------------------------------------------
+; To ensure that N is positive even if the angle is negative (clockwise arc),
+; we take the absolute value of R*A before flooring it to get N.
+	DEFB    $2A                              ; abs → |R*A|  
+; Avoid Edge case N=0 
+	defb    $A2                              ; stk-half (0.5)
+    	defb    $0F                              ; add → N = N + 1/2           
+
             DEFB    $27                              ; INT → N = floor(R*A) — number of steps
             DEFB    $C3                              ; st-mem-3 ← N
             ; Δθ = A / N
@@ -448,16 +464,23 @@ Calcular_Cy:
             DEFB    $01                              ; exchange
             DEFB    $20                              ; cos
             DEFB    $C2                              ; st-mem-2 ← cos(Δθ)
+
             DEFB    $02                              ; delete
             DEFB    $02                              ; delete
+
             ; stack: -Cy,-yrel_i,Cx,-xrel_i
             DEFB    $e3                              ; N
             DEFB    $38                              ; END-CALC
+
             call    FIND_INT1                        ; routine FIND-INT1 fetches N from stack to A.
+
+            ;-----Edge case N=0 (very small angle or radius)-----
+	;or      a              ; Test if N = 0
+    	;ret     z              ; Exit early if N=0 
+            
             ld      b,a                              ; B = loop counter (N)
             push    bc
-            ; or a                                   ; Test if N = 0
-            ; ret z                                  ; Exit early if N=0 (degenerate case)
+            
 
 Draw_Arc_DDA:
 ARC_DRAW:
@@ -506,10 +529,12 @@ L2477:
 ;===============================================================
 Arc_Loop:
             pop     bc
+            ; loop counter (B) = N 
+
 Loop_Start:
             push    bc
             ; ----------------------------------------------
-            ; calculate new x_rel:
+            ; calculate new x_rel
             ; x' = x*cos - y*sin
             ; ----------------------------------------------
             RST     28h
@@ -521,12 +546,13 @@ Loop_Start:
             DEFB    $04                              ; multiply
             DEFB    $03                              ; subtract
             DEFB    $C0                              ; st-mem-0 (new x_rel)
+
             ; X = Cx + x_rel
             DEFB    $E1                              ; Cx
             DEFB    $0F                              ; addition
 
             ; ----------------------------------------------
-            ; calculate new y_rel:
+            ; calculate new y_rel
             ; y' = x*sin + y*cos
             ; ----------------------------------------------
             DEFB    $E0                              ; get-mem-0 (x)
@@ -537,9 +563,11 @@ Loop_Start:
             DEFB    $04                              ; multiply
             DEFB    $0F                              ; add
             DEFB    $C3                              ; st-mem-3 (new y_rel)
+
             ; Y = Cy + y_rel
             DEFB    $E5                              ; Cy
             DEFB    $0F                              ; addition
+
             DEFB    $38                              ; END-CALC
 
 ; --------------------------------------------------------------
