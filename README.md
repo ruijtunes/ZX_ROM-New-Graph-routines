@@ -1,146 +1,101 @@
-# ZX-Plot
-Fast plot routine using LUT to replace the original ROM
+# ZX Spectrum — new graphics ROM routines
 
-Graphic routine in assembler (Z80) for plotting pixels with ZX Spectrum.
+Drop-in assembler replacements for four ZX Spectrum ROM graphics
+routines, plus a new exact arc-drawing routine.
 
-The Plot subroutine - Replace the one in the ROM @ $22E5; Fits in the space of the original (excluding the LUT)
+| Routine          | Source             | ROM slot        | Doc                                  |
+| ---------------- | ------------------ | --------------- | ------------------------------------ |
+| PLOT             | `ZXPLOT.asm`       | `$22E5`         | [docs/PLOT.md](docs/PLOT.md)         |
+| CIRCLE + ARC + DRAW (shared step) | `INTEGRATED.asm` | `$2320` / `$2360` / `$2382` | [docs/CIRCLE.md](docs/CIRCLE.md), [docs/ARC.md](docs/ARC.md) |
+| ARC only (standalone)             | `ARC.asm`        | `$2360`         | [docs/ARC.md](docs/ARC.md)           |
+| RND              | `Rand.asm`         | `$25F8`         | [docs/RND.md](docs/RND.md)           |
 
-A screen byte holds 8 pixels so it is necessary use a mask to leave the other 7 pixels unaffected.
-In this version I use a LUT to grab the mask.
-All 64 pixels in the character cell take any embedded colour items.
-A pixel can be reset (inverse 1), toggled (over 1), or set ( with inverse and over switches off).
-With both switches on, the byte is simply put back on the screen though the colours may change.
+## What's new in this revision
 
+`ARC.asm` is a new arc routine with **zero radius drift by
+construction**. The previous arc implementation (rotational DDA in
+5-byte FP) was provably drifty for long arcs at the Spectrum's FP
+precision. The new implementation runs a pure-integer Bresenham
+circle (the same one that backs `CIRCLE`) and gates each emitted
+pixel by two integer cross products. No floating point inside the
+loop. Same pixel set as `CIRCLE` for the corresponding full circle.
 
-# ZX-Circle
-Fast circle routine to replace the original ROM
+`INTEGRATED.asm` combines `CIRCLE`, the new `ARC` and the `DRAW`
+dispatcher in one image that shares a single Bresenham step
+subroutine (`bres_step`) between `CIRCLE` and `ARC`. Sizes:
 
-Graphic routine in assembler (Z80) for drawing circles  with ZX Spectrum.
+| Block                          | Bytes |
+| ------------------------------ | ----: |
+| CIRCLE setup                   |    46 |
+| Plot_circ                      |     8 |
+| `bres_step` (shared)           |    39 |
+| C8LOOP (8-octant emit)         |    69 |
+| DRAW dispatcher                |    11 |
+| ARC (calls `bres_step`)        |   353 |
+| L2477 wrapper                  |     6 |
+| **Total combined image**       | **532** |
 
-The Circle subroutine - Replace the one in the ROM @ $2320; Fits in the space of the original
+The two-copy variant (CIRCLE + standalone `ARC.asm`, each with its
+own inline Bresenham step) totals ~565 bytes, so sharing the step
+saves ~33 bytes.
 
-The exact definition of a circle centered at the origin is:
+The full mathematical analysis — why the rotation-matrix DDA drifts,
+why the standard textbook fixes (Minsky's circle, Singleton/Buneman
+stable trig recurrence, Chebyshev recurrence, periodic renormalisation)
+each fail to be the right answer here, and what the new algorithm
+actually computes — is in
+[docs/PRECISION_ANALYSIS.md](docs/PRECISION_ANALYSIS.md).
 
-x^2+y^2=r^2
+## Building
 
-Solving for y gives y=± SQR (r^2−x^2)
-Because of symmetry, we can mirror the solution (x,y) pairs we get in Quadrant I into the other quadrants. 
+All sources are sjasmplus-compatible Z80 assembler. The repository
+ships a pinned sjasmplus 1.23.0 under `tests/sjasmplus/`.
 
-The algorithm used is the “Midpoint Circle Algorithm”
+Standalone `ARC.asm`:
 
-- Start out from the top of the circle (pixel (0,r)). 
-- Move right (east (E)) or down-right (southeast (SE)), whichever is closer to the circle.
-- Stop when x=y
-- This implementation gives a more aesthetically pleasing circle than the one in the original ROM. 
- 
-# ZX-Arc
+```
+tests/build.ps1                       # builds ROM, C000, Shim, Main variants
+```
 
-Arc: New Arc algorithm
-Classic geometric algorithm for drawing a circular arc from two points and an angle (DRAW x,y,a),
-using the center of the circle.
+Combined CIRCLE + ARC + DRAW image:
 
-               
-              C (center) 
-             /|\
-            / | \
-           /  |  \
-          /   |   \
-         /    h    \
-        /     |     \
-       P1-----M-----P2
-          d/2    d/2
-       <------d------>
-              
-- d = distance (P1,P2)
-- R = circle radius
-- h = distance from center C to the line P1P2 (chord height)
-- θ is the central angle subtended by the chord P₁–P₂, that is, the angle ∠P₁CP₂.
+```
+tests/sjasmplus/.../sjasmplus.exe --raw=tests/build/integrated.bin INTEGRATED.asm
+```
 
-Algorithm Objective
+Integration of `ARC.asm` into a custom wrapper is documented in
+[docs/ARC.md](docs/ARC.md#memory-layout-and-integration).
 
-Given:
-- Starting point: P1 = (x1, y1) 
-- Ending point: P2 = (x2, y2) 
-- With center C and radius R, draw the arc from P1 to P2 with angle θ.
+## Testing
 
-![Equations](equations.png)
+The Python reference (`tests/ref_arc.py`) is the executable spec
+that the Z80 code is required to match pixel-for-pixel.
 
-# SAM RND on the ZX Spectrum
-Fast SAM ROM routine by Andrew J. A. Wright (1989–1990) to replace the original in the ZX ROM
+```
+python tests/test_ref.py              # spec checks (subset, endpoint, coverage)
+python tests/run_visual.py            # render every case to docs-style PNGs
+```
 
-This RND implementation is designed to replace the original Sinclair Research ZX Spectrum version, delivering over 5× higher performance while relying exclusively on integer arithmetic. It preserves a similar algorithmic structure and statistical properties to the original implementation.
+Fuse-based on-machine validation: build the C000 variant, generate
+a `.sna` via `tests/make_sna.py`, then run `tests/run_fuse.ps1`.
 
-Many classic computers and systems used Linear Congruential Generators (LCGs) because they are simple, fast, and require very little memory. The Sinclair Research ZX Spectrum and the Miles Gordon Technology SAM Coupé are notable examples, both employing Lehmer-style multiplicative generators derived from the LCG family. Other well-known systems also relied on LCGs, including the Microsoft Microsoft C runtime rand() implementation, early IBM mainframe libraries, numerous Unix standard library implementations, and early video game consoles and home computers where computational efficiency was critical. Even today, LCGs remain useful in lightweight simulations, procedural generation, and embedded systems where deterministic behavior and minimal overhead are more important than cryptographic strength.
+## Project layout
 
-**LCG Algorithm - Linear Congruential Generator**
-
-_X(n+1) = (a * X(n) + c) mod m_
-
-- _m_ (Modulus): Defines the maximum period (how many numbers are generated before the sequence repeats).
-- _a_ (Multiplier): Determines how well the values are distributed throughout the sequence.
-- _c_ (Increment): When _c = 0_, the generator is called a Multiplicative Congruential Generator, also known as a Lehmer generator.
-
-
-**SAM Coupé RND Generator**
-
-The RND routine originally proposed and used in the SAM Coupé employs an LCG with modulus _65537_ (the Fermat prime _F4 = 2^16 + 1_), multiplier _254_, and increment _253_. This differs from the ZX Spectrum implementation, which uses multiplier _75_ and increment _0_.
-
-The recurrence can be written as:
-
-**X(n+1) = (254 * (X(n) + 1) mod 65537) - 1**
-
-or equivalently:
-
-**X(n+1) = (254 * X(n) + 253) mod 65537**
-
-
-**ZX Spectrum RND Generator**
-
-The Sinclair Research ZX Spectrum (1982) uses a Lehmer-style multiplicative generator. It operates on 16-bit values, using the Fermat prime _F4 = 65537_ as modulus and _75_ as a primitive root modulo _65537_.
-
-The core formula used in the original ZX ROM is:
-
-**X(n+1) = ((75 * (X(n) + 1)) mod 65537) - 1**
-
-
-**Why 65537?**
-
-A Fermat prime has the form:  _2^(2^n) + 1_. For _n = 4: 2^16 + 1 = 65537_. This is the largest known Fermat prime.
-
-If _m = 65537_ (a prime number) is used together with a multiplier _a_ that is a primitive root modulo _65537_ (such as _75_ or _254_), the generator cycles through all 65,536 possible non-zero states before repeating, achieving the maximum possible period.
-
-
-**Primitive Root Modulo 65537**
-
-Saying that _75_ or _254_ is a primitive root modulo 65537 means that successive powers:
-
-_g_^1, _g_^2, _g_^3, ...
-
-taken modulo _65537_ generate every integer from _1 to 65536_ exactly once before the cycle repeats.
-
-This guarantees full traversal of the multiplicative group and therefore maximum period for the generator.
-
-
-**Optimization Trick - Multiplication by 254 without MUL**
-
-A useful identity is:
-
-_254 * (X + 1) = 256 * (X + 1) - 2 * (X + 1)_
-
-On a 16-bit register, multiplying by 256 is simply an 8-bit left shift (or byte rotation): the low byte L becomes the high byte H, and the new low byte becomes 0.
-
-This allows multiplication by 254 to be implemented efficiently using shifts, subtraction, and carry handling, avoiding a costly general-purpose multiplication routine.
-
-
-# Assembling
-
-The source code is a .asm text file that can be compiled with a Z80 assembler like sjasmplus or other, and run in a Spectrum emulator like the Fuse or Spetaculator. 
-Run the assembler with:
-
-sjasmplus --lst=zxrom.lst zxplot.asm
-
-
-Sjasmplus is a command-line cross-compiler of assembly language for [Z80 CPU](https://en.wikipedia.org/wiki/Zilog_Z80).
-
-Supports many [ZX-Spectrum](https://en.wikipedia.org/wiki/ZX_Spectrum) specific directives, has built-in Lua scripting engine and 3-pass design.
-
+```
+.
+├── README.md                       # this file
+├── ZXPLOT.asm                      # PLOT replacement (incl. mask LUT)
+├── INTEGRATED.asm                  # CIRCLE + ARC + DRAW (shared bres_step)
+├── ARC.asm                         # exact integer arc (standalone / INCLUDE)
+├── Rand.asm                        # SAM-style RND
+├── docs/
+│   ├── PLOT.md
+│   ├── CIRCLE.md
+│   ├── ARC.md
+│   ├── RND.md
+│   ├── PRECISION_ANALYSIS.md       # the deep analysis
+│   └── assets/
+│       ├── circle-comparison.png   # ROM vs new CIRCLE
+│       └── arc-equations.png       # arc geometry reference
+└── tests/                          # build script, Python spec, sjasmplus, harness
+```
